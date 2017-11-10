@@ -6,6 +6,8 @@
 var stringifyJSON = function(obj) {
   if (obj === null) {
   	return 'null';
+  } else if (obj === undefined || typeof obj === 'function') {
+  	return undefined;
   } else if (typeof obj === 'boolean' || typeof obj === 'number') {
   	return obj.toString();
   } else if (typeof obj === 'string') {
@@ -13,34 +15,26 @@ var stringifyJSON = function(obj) {
   } else if (Array.isArray(obj)) {
   	var string = '[';
   	obj.forEach(function(element, index) {
-  	  if (Array.isArray(element)) {
-  	  	string += stringifyJSON(element);
-  	  } else if (!isNaN(element)) {
-  	  	string += element;
-  	  }	else {
-  	  	string += '"' + element + '"';
-  	  }	
-
+  	  if (element === undefined || typeof element === 'function') {
+  	  	string += null;
+  	  } else {
+  	    string += stringifyJSON(element);	
+  	  }  
   	  if (index !== obj.length - 1) {
   	  	string += ',';
   	  }
   	});
   	string += ']';
   	return string;
-
-  } else if (typeof obj === 'object' && obj !== null) {
+  } else if (typeof obj === 'object') {
     var string = '{';
     var lastProperty = Object.keys(obj)[Object.keys(obj).length - 1];
     for (var property in obj) {
-  	  if (obj.hasOwnProperty(property)) {
+  	  if (obj[property] === undefined || typeof obj[property] === 'function') {
+  	  	continue;
+  	  } else if (obj.hasOwnProperty(property)) {
   	    string += '"' + property + '":';
-  
-  	    if (!isNaN(obj[property])) {
-  	      string += obj[property];
-  	    } else {
-  	      string += '"' + obj[property] + '"';
-  	    }
-  
+  		string += stringifyJSON(obj[property]);
   	    if (property !== lastProperty) {
   	      string += ',';
   	    }
@@ -48,6 +42,5 @@ var stringifyJSON = function(obj) {
     }
     string += '}';
     return string;
-
   } 
 };
