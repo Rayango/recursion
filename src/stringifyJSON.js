@@ -6,8 +6,28 @@
 var stringifyJSON = function(obj) {
   if (obj === null) {
   	return 'null';
-  } else if (typeof obj === 'number') {
+  } else if (typeof obj === 'boolean' || typeof obj === 'number') {
   	return obj.toString();
+  } else if (typeof obj === 'string') {
+  	return '"' + obj + '"';
+  } else if (Array.isArray(obj)) {
+  	var string = '[';
+  	obj.forEach(function(element, index) {
+  	  if (Array.isArray(element)) {
+  	  	string += stringifyJSON(element);
+  	  } else if (!isNaN(element)) {
+  	  	string += element;
+  	  }	else {
+  	  	string += '"' + element + '"';
+  	  }	
+
+  	  if (index !== obj.length - 1) {
+  	  	string += ',';
+  	  }
+  	});
+  	string += ']';
+  	return string;
+
   } else if (typeof obj === 'object' && obj !== null) {
     var string = '{';
     var lastProperty = Object.keys(obj)[Object.keys(obj).length - 1];
@@ -18,15 +38,16 @@ var stringifyJSON = function(obj) {
   	    if (!isNaN(obj[property])) {
   	      string += obj[property];
   	    } else {
-  	    	string += '"' + obj[property] + '"';
+  	      string += '"' + obj[property] + '"';
   	    }
   
   	    if (property !== lastProperty) {
-  	    	string += ',';
+  	      string += ',';
   	    }
   	  }	
     }
     string += '}';
     return string;
+
   } 
 };
