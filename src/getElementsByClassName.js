@@ -12,15 +12,17 @@ var getElementsByClassName = function(className) {
   	if (node.classList && node.classList.contains(className)) {
   	  result.push(node);
   	}
-  	for (var i = 0; i < children.length; i++)
+  	for (var i = 0; i < children.length; i++) {
   	  if (children[i].classList && children[i].classList.contains(className)) {
   	  	result.push(children[i]);
-  	  }	else if (children[i].childNodes.length !== 0) {
+  	  }
+  	  if (children[i].childNodes.length !== 0) {
   	  	for (var j = 0; j < children[i].childNodes.length; j++) {
   	  	  searchNode(children[i].childNodes[j]);
   	  	}
   	  }	
-  	};
+  	}
+  };	
   searchNode(body);
   return result;
 };
