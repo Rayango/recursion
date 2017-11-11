@@ -7,29 +7,37 @@ var parseJSON = function(json) {
     // 
   if (json.indexOf('{') === -1 && json.indexOf('[') === -1) {
   	return parseString(json);
-  } else if (json.indexOf('{') === 1) {
+  } else if (json.indexOf('{') === 0) {
     return parseObject(json);
+  } else if (json.indexOf('[') === 0) {
+  	return parseArray(json);
   }
-  
+
 };
 
-function parseString(json) {
-  var object = '';
-  for (var i = 0; i < json.length; i++) {
-    object += json.charAt(i)	
+function parseStringOrNumber(json) {
+  var parsedValue;
+  if (json.indexOf('"') === -1) {
+    json.indexOf('.') === -1 ? parsedValue = parseInt(json) : parsedValue = parseFloat(json);	
+  } else {
+  	parsedValue = json.replace(/"/g, '');
   }
-  return object;
+  return parsedValue;
 }
 
 function parseObject(json) {
-  var jsonString = json;
+  var jsonString = json.slice(1, json.length - 1);
   var object = {};
   var key;
   var value;
 
   while (jsonString.indexOf(':') !== -1) {
-  	key = jsonString.slice(0, jsonString.indexOf(':'));
-  	value = jsonString.slice(jsonString.indexOf(':') + 1, jsonString.indexOf(','));	
+  	key = jsonString.slice(jsonString.indexOf('"') + 1, jsonString.indexOf(':') - 1);
+  	if (jsonString.indexOf(',') !== -1) {
+  	  value = jsonString.slice(jsonString.indexOf(':') + 1, jsonString.indexOf(','));	
+  	} else {
+  	  value = jsonString.slice(jsonString.indexOf(':') + 1);	
+  	}  
   	if (value.indexOf('{') === 0 || value.indexOf('[') === 0) {
   	  value = parseJSON(value);	
   	}
@@ -38,6 +46,26 @@ function parseObject(json) {
   }
 
   return object;
+}
+
+function parseArray(json) {
+  var jsonString = json.slice(1, json.length - 1);
+  var array = [];	
+  var value;
+  while (jsonString.indexOf(',') !== -1) {
+  	if (jsonString.indexOf(',')) {
+  	  value = jsonString.slice(0, jsonString.indexOf(','));
+  	} else {
+  	  value = jsonString;	
+  	}
+  	if (value.indexOf('{') === 0 || value.indexOf('[') === 0) {
+  	  value = parseJSON(value);	
+  	}
+  	array.push(value);
+  	jsonString = jsonString.slice(0, jsonString.indexOf(',') + 1);
+  }
+
+  return array;
 }
 
 
