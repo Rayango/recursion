@@ -41,7 +41,7 @@ function parseStringOrNumber(json) {
 }
 
 function parseObject(json) {
-  var jsonString = json.slice(1, json.length - 1);
+  var jsonString = json.slice(1, json.length - 1).trim();
   var object = {};
   var key;
   var value;
@@ -55,31 +55,43 @@ function parseObject(json) {
       for (var i = 1; i < jsonString.length; i++) {
         if (!nestedObjects && jsonString.charAt(i) === '}') {
           indexOfClosingBracket = i;
-        } else if (jsonString.indexOf(i) === '{') {
+          break;
+        } else if (jsonString.charAt(i) === '{') {
           nestedObjects++;
-        } else if (jsonString.indexOf(i) === '}') {
+        } else if (jsonString.charAt(i) === '}') {
           nestedObjects--;
         }
       }
       value = parseJSON(jsonString.slice(0, indexOfClosingBracket + 1));
-      jsonString = jsonString.slice(indexOfClosingBracket + 2);
+      jsonString = jsonString.slice(indexOfClosingBracket + 2).trim();
     } else if (jsonString.indexOf('[') === 0) {
       var nestedArrays = 0;
       var indexOfClosingBracket = 0;
       for (var i = 1; i < jsonString.length; i++) {
         if (!nestedArrays && jsonString.charAt(i) === ']') {
           indexOfClosingBracket = i;
-        } else if (jsonString.indexOf(i) === '[') {
+          break;
+        } else if (jsonString.charAt(i) === '[') {
           nestedArrays++;
-        } else if (jsonString.indexOf(i) === ']') {
+        } else if (jsonString.charAt(i) === ']') {
           nestedArrays--;
         }
       }
       value = parseJSON(jsonString.slice(0, indexOfClosingBracket + 1));
-      jsonString = jsonString.slice(indexOfClosingBracket + 2);
+      jsonString = jsonString.slice(indexOfClosingBracket + 2).trim();
     } else if (jsonString.indexOf(',') !== -1) {
-  	  value = parseJSON(jsonString.slice(0, jsonString.indexOf(',')));
-      jsonString = jsonString.slice(jsonString.indexOf(',') + 1);	
+      var quotes = 0;
+      var indexOfEndOfValue = 0;
+      for (var i = 0; i < jsonString.length; i++) {
+        if (quotes % 2 === 0 && jsonString.charAt(i) === ',') {
+          indexOfEndOfValue = i;
+          break;
+        } else if (jsonString.charAt(i) === "\"") {
+          quotes++;
+        }
+      }
+      value = parseJSON(jsonString.slice(0, indexOfEndOfValue));
+      jsonString = jsonString.slice(indexOfEndOfValue + 1);
   	} else {
   	  value = parseJSON(jsonString);	
       jsonString = jsonString.slice(jsonString.length);
@@ -91,7 +103,7 @@ function parseObject(json) {
 }
 
 function parseArray(json) {
-  var jsonString = json.slice(1, json.length - 1);
+  var jsonString = json.slice(1, json.length - 1).trim();
   var array = [];	
   var value;
   while (jsonString.length) {
@@ -101,28 +113,30 @@ function parseArray(json) {
       for (var i = 1; i < jsonString.length; i++) {
         if (!nestedObjects && jsonString.charAt(i) === '}') {
           indexOfClosingBracket = i;
-        } else if (jsonString.indexOf(i) === '}') {
+          break;
+        } else if (jsonString.charAt(i) === '{') {
           nestedObjects++;
-        } else if (jsonString.indexOf(i) === '}') {
+        } else if (jsonString.charAt(i) === '}') {
           nestedObjects--;
         }
       }
       value = parseJSON(jsonString.slice(0, indexOfClosingBracket + 1));
-      jsonString = jsonString.slice(indexOfClosingBracket + 2);
+      jsonString = jsonString.slice(indexOfClosingBracket + 2).trim();
     } else if (jsonString.indexOf('[') === 0) {
       var nestedArrays = 0;
       var indexOfClosingBracket = 0;
       for (var i = 1; i < jsonString.length; i++) {
         if (!nestedArrays && jsonString.charAt(i) === ']') {
           indexOfClosingBracket = i;
-        } else if (jsonString.indexOf(i) === '[') {
+          break;
+        } else if (jsonString.charAt(i) === '[') {
           nestedArrays++;
-        } else if (jsonString.indexOf(i) === ']') {
+        } else if (jsonString.charAt(i) === ']') {
           nestedArrays--;
         }
       }
       value = parseJSON(jsonString.slice(0, indexOfClosingBracket + 1));
-      jsonString = jsonString.slice(indexOfClosingBracket + 2);
+      jsonString = jsonString.slice(indexOfClosingBracket + 2).trim();
     } else if (jsonString.indexOf(',') !== -1) {
   	  value = parseJSON(jsonString.slice(0, jsonString.indexOf(',')));
       jsonString = jsonString.slice(jsonString.indexOf(',') + 1);
@@ -130,9 +144,7 @@ function parseArray(json) {
   	  value = parseJSON(jsonString);
       jsonString = jsonString.slice(jsonString.length);	
   	}
-  	if (typeof value === 'string' && (value.indexOf('{') === 0 || value.indexOf('[') === 0)) {
-  	  value = parseJSON(value);	
-  	}
+
   	array.push(value);
   }
 
