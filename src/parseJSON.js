@@ -50,11 +50,33 @@ function parseObject(json) {
   	key = parseJSON(jsonString.slice(0, jsonString.indexOf(':')));
     jsonString = jsonString.slice(jsonString.indexOf(':') + 1).trim();
   	if (jsonString.indexOf('{') === 0) {
-      value = parseJSON(jsonString.slice(0, jsonString.lastIndexOf('}') + 1));
-      jsonString = jsonString.slice(jsonString.lastIndexOf('}') + 2);
+      var nestedObjects = 0;
+      var indexOfClosingBracket = 0;
+      for (var i = 1; i < jsonString.length; i++) {
+        if (!nestedObjects && jsonString.charAt(i) === '}') {
+          indexOfClosingBracket = i;
+        } else if (jsonString.indexOf(i) === '{') {
+          nestedObjects++;
+        } else if (jsonString.indexOf(i) === '}') {
+          nestedObjects--;
+        }
+      }
+      value = parseJSON(jsonString.slice(0, indexOfClosingBracket + 1));
+      jsonString = jsonString.slice(indexOfClosingBracket + 2);
     } else if (jsonString.indexOf('[') === 0) {
-      value = parseJSON(jsonString.slice(0, jsonString.lastIndexOf(']') + 1));
-      jsonString = jsonString.slice(jsonString.lastIndexOf(']') + 2);
+      var nestedArrays = 0;
+      var indexOfClosingBracket = 0;
+      for (var i = 1; i < jsonString.length; i++) {
+        if (!nestedArrays && jsonString.charAt(i) === ']') {
+          indexOfClosingBracket = i;
+        } else if (jsonString.indexOf(i) === '[') {
+          nestedArrays++;
+        } else if (jsonString.indexOf(i) === ']') {
+          nestedArrays--;
+        }
+      }
+      value = parseJSON(jsonString.slice(0, indexOfClosingBracket + 1));
+      jsonString = jsonString.slice(indexOfClosingBracket + 2);
     } else if (jsonString.indexOf(',') !== -1) {
   	  value = parseJSON(jsonString.slice(0, jsonString.indexOf(',')));
       jsonString = jsonString.slice(jsonString.indexOf(',') + 1);	
@@ -62,9 +84,6 @@ function parseObject(json) {
   	  value = parseJSON(jsonString);	
       jsonString = jsonString.slice(jsonString.length);
   	}  
-  	// if (typeof value === 'string' && (value.indexOf('{') === 0 || value.indexOf('[') === 0)) {
-  	//   value = parseJSON(value);	
-  	// }
   	object[key] = value;
   }
 
@@ -76,7 +95,35 @@ function parseArray(json) {
   var array = [];	
   var value;
   while (jsonString.length) {
-  	if (jsonString.indexOf(',') !== -1) {
+  	if (jsonString.indexOf('{') === 0) {
+      var nestedObjects = 0;
+      var indexOfClosingBracket = 0;
+      for (var i = 1; i < jsonString.length; i++) {
+        if (!nestedObjects && jsonString.charAt(i) === '}') {
+          indexOfClosingBracket = i;
+        } else if (jsonString.indexOf(i) === '}') {
+          nestedObjects++;
+        } else if (jsonString.indexOf(i) === '}') {
+          nestedObjects--;
+        }
+      }
+      value = parseJSON(jsonString.slice(0, indexOfClosingBracket + 1));
+      jsonString = jsonString.slice(indexOfClosingBracket + 2);
+    } else if (jsonString.indexOf('[') === 0) {
+      var nestedArrays = 0;
+      var indexOfClosingBracket = 0;
+      for (var i = 1; i < jsonString.length; i++) {
+        if (!nestedArrays && jsonString.charAt(i) === ']') {
+          indexOfClosingBracket = i;
+        } else if (jsonString.indexOf(i) === '[') {
+          nestedArrays++;
+        } else if (jsonString.indexOf(i) === ']') {
+          nestedArrays--;
+        }
+      }
+      value = parseJSON(jsonString.slice(0, indexOfClosingBracket + 1));
+      jsonString = jsonString.slice(indexOfClosingBracket + 2);
+    } else if (jsonString.indexOf(',') !== -1) {
   	  value = parseJSON(jsonString.slice(0, jsonString.indexOf(',')));
       jsonString = jsonString.slice(jsonString.indexOf(',') + 1);
   	} else {
